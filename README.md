@@ -30,5 +30,6 @@ Deploy your own /dev/null as a Service!
 
 `sam deploy --template-file packaged-template.yaml --stack-name DevNull --capabilities CAPABILITY_IAM`
 
-This command will return your deployed /dev/null API endpoint
+This command will return your deployed /dev/null API endpoint:
+
 `aws cloudformation describe-stacks --stack-name DevNull --query Stacks[0].Outputs[].[OutputKey,OutputValue]`
