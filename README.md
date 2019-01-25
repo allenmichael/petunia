@@ -13,6 +13,7 @@ This is a technological breakthrough to be used in an upcoming anti-social media
 # Usage
 ## Start the API with SAM:
 `sam build`
+
 `sam local start-api`
 ## Send data to /dev/null
 `curl -X POST -H "Content-Type: application/json" localhost:3000/null -d '{"data":"really secure"}'`
