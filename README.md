@@ -3,8 +3,11 @@ This is a technological breakthrough to be used in an upcoming anti-social media
 
 # Requirements
 [Node v. 8.10 or greater](https://nodejs.org/en/)
+
 [Docker](https://www.docker.com/)
+
 [AWS SAM CLI](https://github.com/awslabs/aws-sam-cli)
+
 [AWS CLI](https://aws.amazon.com/cli/)
 
 # Usage
