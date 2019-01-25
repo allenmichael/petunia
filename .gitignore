@@ -1,0 +1,3 @@
+.aws-sam
+node-modules
+packaged-template.yaml
