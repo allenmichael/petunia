@@ -22,6 +22,7 @@ exports.lambdaHandler = async (event, context) => {
             const encrypted = Buffer.concat([cipher.update(event.body, 'utf8'), cipher.final()]);
 
             delete key;
+            delete iv;
 
             return {
                 'statusCode': 200,
