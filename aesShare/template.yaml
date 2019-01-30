@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  devNull/AES Share
+
+  Encrypt your darkest secrets and throw away the key.
+Parameters:
+  SaltAndPWLength:
+    Type: Number
+    Default: 256
+Resources:
+  AESShareFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambdaHandler
+      Runtime: nodejs8.10
+      Environment:
+        Variables:
+          SALT_AND_PW_LENGTH:
+            Ref: SaltAndPWLength
+      Events:
+        AESShare:
+          Type: Api
+          Properties:
+            Path: /aes-share
+            Method: post
+
+Outputs:
+  AESShareApi:
+    Description: "API Gateway endpoint URL for Prod stage for AES Share"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/aes-share/"
+
+  AESShareFunction:
+    Description: "AES Share Lambda Function ARN"
+    Value: !GetAtt AESShareFunction.Arn
+
+  AESShareFunctionIamRole:
+    Description: "Implicit IAM Role created for AES Share function"
+    Value: !GetAtt AESShareFunction.Arn

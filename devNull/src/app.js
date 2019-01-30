@@ -1,4 +1,4 @@
-exports.lambdaHandler = (event, context) => {
+exports.lambdaHandler = async (event, context) => {
     try {
         Object.keys(event).forEach(key => { delete event[key]; });
         console.log(event);

@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  devNull
+
+  /dev/null as a Service
+Resources:
+  DevNullFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambdaHandler
+      Runtime: nodejs8.10
+      Events:
+        DevNull:
+          Type: Api
+          Properties:
+            Path: /null
+            Method: post
+
+Outputs:
+  DevNullApi:
+    Description: "API Gateway endpoint URL for Prod stage for /dev/null as a service"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/null/"
+
+  DevNullFunction:
+    Description: "/dev/null Lambda Function ARN"
+    Value: !GetAtt DevNullFunction.Arn
+
+  DevNullFunctionIamRole:
+    Description: "Implicit IAM Role created for /dev/null function"
+    Value: !GetAtt DevNullFunction.Arn
