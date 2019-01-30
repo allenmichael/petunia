@@ -45,6 +45,8 @@ A service proposed as an alternative to /dev/null-aaS, or potentially, as an enh
 
 KMS Share will create an AWS KMS customer master key (CMK), and you may be charged for usage. Review the [pricing page](https://aws.amazon.com/kms/pricing/) before deploying for more information.
 
+KMS Share uses [AWS KMS](https://aws.amazon.com/kms/) to encrypt cryptographically strong pseudo-random data that is then used as a key to encrypt your data with AES-256. Finally, the pseudo-random data and the encrypted data used as a key for AES-256 is destoryed.
+
 # Usage
 ## Start the KMS Share API with SAM:
 
@@ -57,6 +59,8 @@ KMS Share will create an AWS KMS customer master key (CMK), and you may be charg
 ## Send data to KMS Share
 
 `curl -X POST -H "Content-Type: application/json" -d '{"data":"really secure"}' localhost:3000/kms-share`
+
+`curl -F "file=@LICENSE" localhost:3000/kms-share`
 
 # Deploy KMS Share
 
