@@ -1,8 +1,8 @@
 {
-  "name": "devNull",
+  "name": "kmsShare",
   "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
-  "main": "devNull/app.js",
+  "description": "Encrypt your data.",
+  "main": "app.js",
   "repository": "https://github.com/allenmichael/petunia",
   "author": "AMSXBG",
   "license": "Apache 2.0",

@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  devNull/KMS Share
+
+  Encrypt your darkest secrets.
+Parameters:
+  KMSAliasName:
+    Type: String
+    Default: alias/devnull/share
+Resources:
+  KMSShareFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambdaHandler
+      Runtime: nodejs8.10
+      Role: !GetAtt KMSShareEncryptionRole.Arn
+      Environment:
+        Variables:
+          KMS_ALIAS:
+            Ref: KMSAliasName
+      Events:
+        KMSShare:
+          Type: Api
+          Properties:
+            Path: /kms-share
+            Method: post
+
+  KMSShareKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: "True"
+      KeyPolicy:
+        Id: dev-null-key
+        Version: "2012-10-17"
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:aws:iam::"
+                    - Ref: AWS::AccountId
+                    - ":root"
+            Action: kms:*
+            Resource: "*"
+          - Sid: "Allow Encryption Service to use this key"
+            Effect: "Allow"
+            Action:
+              - "kms:Encrypt"
+            Principal:
+              AWS: !GetAtt KMSShareEncryptionRole.Arn
+            Resource: "*"
+
+  KMSShareKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName:
+        Ref: KMSAliasName
+      TargetKeyId:
+        Ref: KMSShareKmsKey
+  KMSShareEncryptionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSLambdaExecute
+      RoleName: kms-share-encryption-role
+
+Outputs:
+  KMSShareApi:
+    Description: "API Gateway endpoint URL for Prod stage for KMS Share"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/kms-share/"
+
+  KMSShareFunction:
+    Description: "KMS Share Lambda Function ARN"
+    Value: !GetAtt KMSShareFunction.Arn
+
+  KMSShareFunctionIamRole:
+    Description: "Implicit IAM Role created for KMS Share function"
+    Value: !GetAtt KMSShareFunction.Arn
