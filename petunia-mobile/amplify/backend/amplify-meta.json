@@ -1,0 +1,35 @@
+{
+	"providers": {
+		"awscloudformation": {
+			"AuthRoleName": "petuniamobile-20190131140033-authRole",
+			"UnauthRoleArn": "arn:aws:iam::805580953652:role/petuniamobile-20190131140033-unauthRole",
+			"AuthRoleArn": "arn:aws:iam::805580953652:role/petuniamobile-20190131140033-authRole",
+			"Region": "us-west-2",
+			"DeploymentBucketName": "petuniamobile-20190131140033-deployment",
+			"UnauthRoleName": "petuniamobile-20190131140033-unauthRole",
+			"StackName": "petuniamobile-20190131140033",
+			"StackId": "arn:aws:cloudformation:us-west-2:805580953652:stack/petuniamobile-20190131140033/a1dad180-25a3-11e9-822f-0a578203aa12"
+		}
+	},
+	"auth": {
+		"cognito491651cb": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/petuniamobile-20190131140033-deployment/amplify-cfn-templates/auth/cognito491651cb-cloudformation-template.yml",
+				"logicalId": "authcognito491651cb"
+			},
+			"lastPushTimeStamp": "2019-01-31T22:05:47.125Z",
+			"output": {
+				"AppClientSecret": "1jccoqga43o9et2436i90d9c43s34vhfr0cqflo5sne1fb742dun",
+				"UserPoolId": "us-west-2_iSrivCVCh",
+				"AppClientIDWeb": "21dmqan5mkqfd0sbj758iu3ak4",
+				"AppClientID": "5704ms8d0mk94jvuiidan7lvbm",
+				"IdentityPoolId": "us-west-2:acd61949-423b-4e2a-8e1e-78d79cff5739",
+				"IdentityPoolName": "cognito491651cb_identitypool_491651cb",
+				"UserPoolName": "cognito491651cb_userpool_491651cb"
+			},
+			"lastPushDirHash": "8uBmBS3+DXg00kNjlAHJ2EoGiNs="
+		}
+	}
+}

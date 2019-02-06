@@ -1,0 +1,14 @@
+{
+    "providers": {
+        "awscloudformation": {
+            "AuthRoleName": "petuniamobile-20190131140033-authRole",
+            "UnauthRoleArn": "arn:aws:iam::805580953652:role/petuniamobile-20190131140033-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::805580953652:role/petuniamobile-20190131140033-authRole",
+            "Region": "us-west-2",
+            "DeploymentBucketName": "petuniamobile-20190131140033-deployment",
+            "UnauthRoleName": "petuniamobile-20190131140033-unauthRole",
+            "StackName": "petuniamobile-20190131140033",
+            "StackId": "arn:aws:cloudformation:us-west-2:805580953652:stack/petuniamobile-20190131140033/a1dad180-25a3-11e9-822f-0a578203aa12"
+        }
+    }
+}
