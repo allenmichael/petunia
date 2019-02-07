@@ -1,0 +1,20 @@
+<% include ../partials/common/header %>
+<% include ../partials/common/display-header %>
+<div id="main" class="container-fluid" min-height="2050px">
+    <div class="row justify-content-md-center">
+        <div class="col-6">
+            <form action="/sign-up" method="post">
+                <div class="form-group">
+                    <label for="petuniaEmail">Email address</label>
+                    <input id="petuniaEmail" type="email" class="form-control" aria-describedby="emailHelp" placeholder="Enter email"
+                        name="email">
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else (or maybe we will...).</small>
+                    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                </div>
+                <button type="submit" class="btn btn-primary" value="OK">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/common/footer %>
