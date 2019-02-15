@@ -1,0 +1,19 @@
+<% include ../partials/common/header %>
+
+<h2>Something went wrong:</h2>
+<ul>
+    <% errors.forEach(function(error) { %>
+    <li>
+        <%= error.param %>
+    </li>
+    <li>
+        <%= error.msg %>
+    </li>
+    <% }); %>
+</ul>
+<% if(locals.returnUrl) { %>
+<a href="<%= returnUrl %>">Go Back</a>
+<% } else { %>
+<a href="/"> Start Over </a>
+<% } %>
+<% include ../partials/common/footer %>
