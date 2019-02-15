@@ -2,6 +2,7 @@
 .aws-sam
 node_modules
 packaged-template.yaml
+launch.json
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/
