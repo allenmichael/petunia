@@ -11,12 +11,14 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo/react-native-action-sheet": "^2.1.0",
     "@expo/samples": "2.1.1",
     "aws-amplify": "^1.1.19",
     "aws-amplify-react-native": "^2.1.7",
     "expo": "^32.0.0",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-camera": "^1.11.2",
     "react-native-easy-toast": "^1.1.0",
     "react-navigation": "^3.0.9"
   },

@@ -5,6 +5,7 @@ import AppNavigator from './navigation/AppNavigator';
 import Auth from '@aws-amplify/auth';
 import awsconfig from './aws-exports';
 import { withAuthenticator } from 'aws-amplify-react-native';
+import { ActionSheetProvider,connectActionSheet} from '@expo/react-native-action-sheet';
 
 Auth.configure(awsconfig);
 
@@ -26,7 +27,9 @@ class App extends React.Component {
       return (
         <View style={styles.container}>
           {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-          <AppNavigator />
+          <ActionSheetProvider>
+            <AppNavigator />
+          </ActionSheetProvider>
         </View>
       );
     }
