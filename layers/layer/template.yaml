@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Petunia Libraries Layer
+
+Resources:
+  PetuniaDeps:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: petunia-libraries
+      Description: Dependencies for Petunia backend
+      ContentUri: ./out.zip
+      CompatibleRuntimes:
+        - nodejs8.10
+      LicenseInfo: "Apache-2.0"
+      RetentionPolicy: Retain
+Outputs:
+  PetuniaDepsLayer:
+    Description: "Layer for including Petunia libraries"
+    Value: !Ref PetuniaDeps

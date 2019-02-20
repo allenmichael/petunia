@@ -3,6 +3,8 @@
 node_modules
 packaged-template.yaml
 .vscode 
+out.yaml
+out.zip
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/
