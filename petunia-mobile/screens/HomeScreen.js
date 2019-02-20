@@ -4,8 +4,7 @@ import {Camera} from 'expo'
 import { Button, Icon } from 'react-native-elements';
 import prodAPI from '../api';
 import Toast, {DURATION} from 'react-native-easy-toast'
-import { ShowActionSheetButton} from '../components/ActionSheetButton'
-import { ActionSheetProvider,connectActionSheet} from '@expo/react-native-action-sheet';
+import { connectActionSheet} from '@expo/react-native-action-sheet';
 
 @connectActionSheet
 class HomeScreen extends Component {
