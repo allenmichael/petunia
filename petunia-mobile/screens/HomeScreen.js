@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Modal, Text, TouchableHighlight, View, StyleSheet, TextInput} from 'react-native'
-import {Camera} from 'expo'
+import { Modal, Text, TouchableHighlight, View, StyleSheet, TextInput, TouchableOpacity} from 'react-native'
+import {Camera, Permissions} from 'expo'
 import { Button, Icon } from 'react-native-elements';
 import prodAPI from '../api';
 import Toast, {DURATION} from 'react-native-easy-toast'
@@ -17,13 +17,14 @@ class HomeScreen extends Component {
       hasCameraPermission: null,
       type: Camera.Constants.Type.back,
       selectedIndex: null,
+      displayCamera: false
     }
 
    }
 
    async componentWillMount() {
-      // const { status } = await Permissions.askAsync(Permissions.CAMERA);
-      // this.setState({ hasCameraPermission: status === 'granted' })
+      const { status } = await Permissions.askAsync(Permissions.CAMERA);
+      this.setState({ hasCameraPermission: status === 'granted' })
     }
 
    toggleModal(visible) {
@@ -67,7 +68,9 @@ class HomeScreen extends Component {
               //choose photo
               break;
               case 1:
-              //take photo and open camera
+              this.toggleModal(false)
+              this.setState({displayCamera : true})
+              break;
            }
           // Do something here depending on the button index selected
         },
@@ -75,8 +78,44 @@ class HomeScreen extends Component {
     };
 
    render() {
+      const { hasCameraPermission } = this.state;
+               let cameraDisplay;
+               if (!hasCameraPermission) {
+                 cameraDisplay = <Text>No access to camera</Text>;
+               } else if(hasCameraPermission) {
+                  cameraDisplay =  <Modal animationType = {"slide"} transparent = {false}
+                  visible = {this.state.displayCamera} style={{ flex: 1 }}>
+                                    <Camera style={{ flex: 1 }} type={this.state.type}>
+                                    <View
+                                       style={{
+                                          flex: 1,
+                                          backgroundColor: 'transparent',
+                                          flexDirection: 'row',
+                                       }}>
+                                       <TouchableOpacity
+                                          style={styles.cameraBtn}
+                                          onPress={() => {
+                                          this.setState({
+                                             type: this.state.type === Camera.Constants.Type.back
+                                                ? Camera.Constants.Type.front
+                                                : Camera.Constants.Type.back,
+                                          });
+                                          }}>
+                                          <Text
+                                          style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>
+                                          {' '}Flip{' '}
+                                          </Text>
+                                       </TouchableOpacity>
+                                       <TouchableOpacity style={styles.cameraBtn} onPress = {() => {this.setState({displayCamera: false})}}>
+                                          <Text style = {{ fontSize: 18, marginTop: -10, color: 'white' }}>Close Camera</Text>
+                                       </TouchableOpacity>
+                                    </View>
+                                    </Camera>
+                                 </Modal>
+               }
       return (
          <View style = {styles.container}>
+            {cameraDisplay}
             <Modal animationType = {"slide"} transparent = {false}
                visible = {this.state.modalVisible}
                onRequestClose = {() => { console.log("Modal has been closed.") } }>
@@ -91,9 +130,7 @@ class HomeScreen extends Component {
                      
                   <TextInput style={styles.input} placeholder="What's on your mind?" onChangeText={(text) => this.setState({comment: text})} value={this.state.comment} spellCheck={false} />
                   <View style={styles.btnContainer}>
-                     {/* <View style={styles.buttonContainer}> */}
                      <Icon name="add-a-photo" iconStyle={[styles.icon, styles.buttonContainer]} onPress = {() => this._onOpenActionSheet()} />
-                     {/* </View> */}
                      <View style={styles.buttonContainer}>
                      <Button buttonStyle={styles.button} onPress = {() => this.sendPost()}  icon={{
                     name: "comment",
@@ -218,18 +255,13 @@ const styles = StyleSheet.create ({
    fontSize: 16,
    marginTop: 20,
  },
-//   preview: { 
-//    flex: 1, 
-//    justifyContent: 'flex-end', 
-//    alignItems: 'center', 
-//    height: Dimensions.get('window').height, 
-//    width: Dimensions.get('window').width},
-//    capture: { 
-//       flex: 0, 
-//       backgroundColor: '#fff', 
-//       borderRadius: 5, 
-//       color: '#000', 
-//       padding: 10, 
-//       margin: 40
-//    }
+ cameraBtn: {
+      flex: 1,
+      alignSelf: 'baseline',
+      alignItems: 'stretch',
+      marginTop:40,
+      marginLeft:30
+      
+ }
+
 })
