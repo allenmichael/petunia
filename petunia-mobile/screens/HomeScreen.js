@@ -5,6 +5,8 @@ import { Button, Icon } from 'react-native-elements';
 import prodAPI from '../api';
 import Toast, {DURATION} from 'react-native-easy-toast'
 import { connectActionSheet} from '@expo/react-native-action-sheet';
+import Auth from '@aws-amplify/auth';
+
 
 @connectActionSheet
 class HomeScreen extends Component {
@@ -37,17 +39,43 @@ class HomeScreen extends Component {
    // }
 
    sendPost() {
-  
-    console.log(this.state.comment);
-    fetch(prodAPI, {
-       method: 'post',
-       body: JSON.stringify({'post': this.state.comment})
-    })
-    .then(res => res.json())
-    .then(data => {
-       this.setState({comment: ''}); //reset comment box
-       this.refs.toast.show(data.message)
+  //https://mvuc4uice6.execute-api.us-west-2.amazonaws.com/prod
+  //{eventType: 'devnull', postType: 'text', email: 'nickik@amazon.com', 'userId': 'nicki' }
+  Auth.currentAuthenticatedUser({
+      bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
+   }).then(user =>{
+      //user.username && user.attributes.email
+
+      let dataToPut = {
+         eventType: 'devnull',
+         postType: 'text',
+         email: user.attributes.email,
+         userId: user.username 
+      }
+      fetch('https://mvuc4uice6.execute-api.us-west-2.amazonaws.com/prod/event', {
+         method: 'PUT',
+         body: JSON.stringify(dataToPut),
+         headers: new Headers({'Content-Type': 'application/json'}),
+      })
+      .then(res => res.json())
+      .then(data => {
+         console.log(data);
+         fetch(prodAPI, {
+            method: 'post',
+            body: JSON.stringify({'post': this.state.comment})
+         })
+         .then(res => res.json())
+         .then(data => {
+            this.setState({comment: ''}); //reset comment box
+            this.refs.toast.show(data.message)
+           });
+
       });
+
+   })
+   .catch(err => console.log(err));
+
+    
    }
 
    _onOpenActionSheet = () => {
