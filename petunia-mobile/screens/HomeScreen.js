@@ -5,6 +5,10 @@ import { Button, Icon } from 'react-native-elements';
 import prodAPI from '../api';
 import Toast, {DURATION} from 'react-native-easy-toast'
 import { connectActionSheet} from '@expo/react-native-action-sheet';
+var AWS = require('aws-sdk');
+AWS.config.region = 'us-east-1'; 
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'us-east-1:1956382a-b3f6-472c-9a8d-3a246853c917'});
+
 
 @connectActionSheet
 class HomeScreen extends Component {
@@ -37,17 +41,51 @@ class HomeScreen extends Component {
    //    .catch(err => console.error(err)); 
    // }
 
-   sendPost() {
+   async redactText(){
+        // API call params
+      var comprehendParams = {
+      LanguageCode: "en",
+      Text: ''
+      };
+     comprehendParams.Text = this.state.comment;
+     
+     // instantiate comprehend client
+     var comprehend = new AWS.Comprehend({apiVersion: '2017-11-27'});
+     let currentComponent = this;
+
+     try{
+     let data = await comprehend.detectSyntax(comprehendParams).promise();
+     let wordsToRedact = data.SyntaxTokens.filter(value => {
+        return value.PartOfSpeech.Tag === "PROPN" || value.PartOfSpeech.Tag === "NOUN";
+     });
+     let originalComment = this.state.comment;
+      wordsToRedact.map(word => {
+         let filler = "x".repeat(word.Text.length);
+         originalComment = originalComment.replace(word.Text, filler);
+         
+      })
+      this.setState({comment: originalComment});
+
+     return data;
+     }
+     catch(err){
+      console.log(err);
+     }
+   }
+
+   async sendPost() {
   
     console.log(this.state.comment);
+    await this.redactText();
     fetch(prodAPI, {
        method: 'post',
        body: JSON.stringify({'post': this.state.comment})
     })
     .then(res => res.json())
     .then(data => {
+      
+       this.refs.toast.show(`${data.message} and your original message redacted: ${this.state.comment}`)
        this.setState({comment: ''}); //reset comment box
-       this.refs.toast.show(data.message)
       });
    }
 
