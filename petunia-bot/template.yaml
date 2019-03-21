@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  service function
+
+Resources:
+  ServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs8.10
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref PetuniaUsersTable
+      Environment:
+        Variables:
+          PETUNIA_USERS_TABLE: !Ref PetuniaUsersTable
+
+  PetuniaUsersTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: PetuniaUsers
+      PrimaryKey:
+        Name: userName
+        Type: String
+
+Outputs:
+  ServiceFunction:
+    Description: "ServiceFunction Lambda Function ARN"
+    Value: !GetAtt ServiceFunction.Arn
+
+  ServiceFunctionName:
+    Description: "ServiceFunction Lambda Function ARN"
+    Value: !Ref ServiceFunction
+
+  ServiceFunctionIamRole:
+    Description: "Implicit IAM Role created for DisneyTokenService function"
+    Value: !GetAtt ServiceFunction.Arn

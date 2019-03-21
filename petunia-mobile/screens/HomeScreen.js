@@ -5,10 +5,10 @@ import { Button, Icon } from 'react-native-elements';
 import prodAPI from '../api';
 import Toast, {DURATION} from 'react-native-easy-toast'
 import { connectActionSheet} from '@expo/react-native-action-sheet';
+import Auth from '@aws-amplify/auth';
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-east-1'; 
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'us-east-1:1956382a-b3f6-472c-9a8d-3a246853c917'});
-
 
 @connectActionSheet
 class HomeScreen extends Component {
@@ -73,20 +73,46 @@ class HomeScreen extends Component {
      }
    }
 
-   async sendPost() {
-  
-    console.log(this.state.comment);
-    await this.redactText();
-    fetch(prodAPI, {
-       method: 'post',
-       body: JSON.stringify({'post': this.state.comment})
-    })
-    .then(res => res.json())
-    .then(data => {
-      
-       this.refs.toast.show(`${data.message} and your original message redacted: ${this.state.comment}`)
-       this.setState({comment: ''}); //reset comment box
+
+  async sendPost() {
+  //https://mvuc4uice6.execute-api.us-west-2.amazonaws.com/prod
+  //{eventType: 'devnull', postType: 'text', email: 'nickik@amazon.com', 'userId': 'nicki' }
+  Auth.currentAuthenticatedUser({
+      bypassCache: false  // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
+   }).then(user =>{
+      //user.username && user.attributes.email
+
+      let dataToPut = {
+         eventType: 'devnull',
+         postType: 'text',
+         email: user.attributes.email,
+         userId: user.username 
+      }
+      await this.redactText();
+      fetch('https://mvuc4uice6.execute-api.us-west-2.amazonaws.com/prod/event', {
+         method: 'PUT',
+         body: JSON.stringify(dataToPut),
+         headers: new Headers({'Content-Type': 'application/json'}),
+      })
+      .then(res => res.json())
+      .then(data => {
+         console.log(data);
+         fetch(prodAPI, {
+            method: 'post',
+            body: JSON.stringify({'post': this.state.comment})
+         })
+         .then(res => res.json())
+         .then(data => {
+            this.refs.toast.show(`${data.message} and your original message redacted: ${this.state.comment}`)
+            this.setState({comment: ''}); //reset comment box
+           });
+
+
       });
+
+   })
+   .catch(err => console.log(err));
+
    }
 
    _onOpenActionSheet = () => {

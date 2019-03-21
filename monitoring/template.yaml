@@ -1,0 +1,180 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: A stack for ingesting events from Petunia's front end.
+Resources:
+  PetuniaFireHoseToS3:
+    DependsOn:
+      - FirehoseDeliveryPolicy
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      ExtendedS3DestinationConfiguration:
+        BucketARN:
+          Fn::Join:
+            - ""
+            - - "arn:aws:s3:::"
+              - Ref: EventsDestinationBucket
+        BufferingHints:
+          IntervalInSeconds: "60"
+          SizeInMBs: "50"
+        CompressionFormat: UNCOMPRESSED
+        Prefix: firehose/
+        RoleARN:
+          Fn::GetAtt:
+            - FirehoseDeliveryRole
+            - Arn
+  EventsDestinationBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+  FirehoseDeliveryRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ""
+            Effect: Allow
+            Principal:
+              Service: firehose.amazonaws.com
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId:
+                  Ref: AWS::AccountId
+  FirehoseDeliveryPolicy:
+    Type: AWS::IAM::Policy
+    DependsOn:
+      - EventsDestinationBucket
+    Properties:
+      PolicyName: firehose_delivery_policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - Ref: EventsDestinationBucket
+              - Fn::Join:
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - Ref: EventsDestinationBucket
+                    - "*"
+      Roles:
+        - Ref: FirehoseDeliveryRole
+  EventsProcessingApiRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ""
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+  EventsProcessingApiPolicy:
+    Type: AWS::IAM::Policy
+    DependsOn:
+      - EventsProcessingApiRole
+    Properties:
+      PolicyName: api_gateway_firehose_proxy_role
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - firehose:PutRecord
+            Resource:
+              Fn::GetAtt:
+                - PetuniaFireHoseToS3
+                - Arn
+      Roles:
+        - Ref: EventsProcessingApiRole
+  EventsProcessingApi:
+    Type: AWS::Serverless::Api
+    DependsOn:
+      - PetuniaFireHoseToS3
+      - EventsProcessingApiRole
+    Properties:
+      EndpointConfiguration: REGIONAL
+      StageName: prod
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type'"
+      DefinitionBody:
+        swagger: 2
+        info:
+          title:
+            Ref: AWS::StackName
+        paths:
+          "/event":
+            put:
+              consumes:
+                - application/json
+              produces:
+                - application/json
+              responses:
+                "200":
+                  statusCode: 200
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type'"
+                      method.response.header.Access-Control-Allow-Methods:
+                        "'OPTIONS,
+                        PUT'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                credentials:
+                  Fn::GetAtt:
+                    - EventsProcessingApiRole
+                    - Arn
+                connectionType: INTERNET
+                httpMethod: POST
+                type: AWS
+                uri:
+                  Fn::Join:
+                    - ""
+                    - - "arn:aws:apigateway:"
+                      - Ref: AWS::Region
+                      - ":firehose:action/PutRecord"
+                requestTemplates:
+                  application/json:
+                    Fn::Join:
+                      - ""
+                      - - '{ "DeliveryStreamName": "'
+                        - Ref: PetuniaFireHoseToS3
+                        - '",    "Record": {   "Data": "$util.base64Encode($input.json(''$''))"
+                          } }'
+                requestParameters:
+                  integration.request.header.Content-Type: "'application/x-amz-json-1.1'"
+Outputs:
+  StreamingApiEndpoint:
+    Description: The endpoint for the REST API created with API Gateway
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: EventsProcessingApi
+          - ".execute-api."
+          - Ref: AWS::Region
+          - ".amazonaws.com/prod"
